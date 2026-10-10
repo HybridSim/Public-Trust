@@ -1,688 +1,523 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HSML — Public Confidence Dashboard</title>
-
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: #f3f6fa;
-      color: #203149;
-      font: 14px system-ui, sans-serif;
-    }
-
-    main {
-      max-width: 1100px;
-      margin: auto;
-      padding: 24px;
-    }
-
-    h1 { font-size: 28px; }
-    h2 { font-size: 18px; }
-
-    p {
-      line-height: 1.6;
-      color: #607086;
-    }
-
-    .card {
-      background: white;
-      padding: 22px;
-      border: 1px solid #dce4ee;
-      border-radius: 14px;
-      margin-top: 18px;
-    }
-
-    .controls {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
-    label {
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    input, select {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border: 1px solid #bdcadb;
-      border-radius: 7px;
-      background: white;
-      font: inherit;
-    }
-
-    button {
-      background: #155dcc;
-      color: white;
-      border: 0;
-      padding: 12px 18px;
-      border-radius: 8px;
-      margin: 16px 8px 0 0;
-      font: 600 14px system-ui;
-      cursor: pointer;
-    }
-
-    button.secondary {
-      background: #edf2f8;
-      color: #294263;
-    }
-
-    svg {
-      width: 100%;
-      height: auto;
-    }
-
-    .legend {
-      display: flex;
-      gap: 18px;
-      flex-wrap: wrap;
-      font-weight: 600;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 18px;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 11px 6px;
-      border-bottom: 1px solid #e4eaf1;
-    }
-
-    .table-wrap { overflow-x: auto; }
-
-    .note {
-      background: #fff7e5;
-      padding: 14px;
-      border-radius: 8px;
-      color: #71541c;
-      font-size: 13px;
-    }
-
-    pre {
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      line-height: 1.8;
-      font-size: 13px;
-    }
-
-    #error { color: #a52323; }
-
-    @media (max-width: 650px) {
-      main { padding: 14px; }
-      .controls { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 400px) {
-      .controls { grid-template-columns: 1fr; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Public confidence dashboard · Sinead Madden · HSML</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6fa;color:#18283b;font:15px system-ui,sans-serif}
+main{max-width:1150px;margin:auto;padding:28px}
+header{margin-bottom:24px}
+.title-row{display:flex;align-items:center;gap:14px}
+.title-row h1{margin:0}
+.logo{display:block;width:55px;height:auto;flex-shrink:0}
+small,.muted{color:#607086}
+h1{font-size:30px;margin:7px 0}
+h2{font-size:18px;margin:0 0 18px}
+.layout{display:grid;grid-template-columns:290px 1fr;gap:20px}
+.card{background:white;border:1px solid #dde5ef;border-radius:16px;padding:22px}
+label{display:block;margin-bottom:14px;font-size:13px;font-weight:600}
+input,select{display:block;width:100%;margin-top:6px;border:1px solid #bac8d8;border-radius:7px;padding:9px;background:white;font:inherit;color:inherit}
+button{border:0;background:#155dcc;color:white;border-radius:8px;padding:11px 15px;font:600 14px system-ui;cursor:pointer}
+button.secondary{background:#edf2f8;color:#294263}
+button:hover{filter:brightness(.95)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:17px}
+.stat{background:#f4f7fb;border-radius:10px;padding:12px}
+.stat strong{display:block;font-size:23px;margin-top:5px}
+.stat span{font-size:12px;color:#607086}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;margin-top:8px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.note{background:#fff7e8;border:1px solid #ead5a6;padding:13px;border-radius:9px;font-size:13px;line-height:1.5;margin-top:18px}
+table{width:100%;border-collapse:collapse;margin-top:15px;font-size:13px}
+th,td{text-align:left;padding:10px 6px;border-bottom:1px solid #e4eaf1}
+.equations{font:13px ui-monospace,monospace;line-height:1.9;white-space:pre-wrap}
+.below{margin-top:20px}
+#status{font-size:13px;margin:12px 0;color:#4b6076}
+#error{color:#ac2727;font-size:13px}
+footer{margin-top:20px;font-size:12px;color:#607086}
+@media(max-width:760px){
+  main{padding:16px}
+  .layout{grid-template-columns:1fr}
+  .card{padding:16px}
+  h1{font-size:24px}
+}
+</style>
 </head>
-
 <body>
 <main>
-  <header>
-    <small>HSML · EXPLORATORY SYSTEM DYNAMICS</small>
+<header>
+  <div class="title-row">
+    <img class="logo" alt="HSML — Hybrid Simulation Modelling Lab" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGMAAAA0CAYAAACesIbaAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFxEAABcRAcom8z8AABIaSURBVHhe7ZsHeFXFtscJvUPAhoIKUoIEUVCeFEVKEJWi3HeFi6D3vmdXFMu7KqAQkCKgIL0pIFVICBYUQkIQUKqoIBCKJEHphJJQJISs9/3WOXOy9z77nCQQuKKs+dZ3zp49/T+zZq01swvIFfrDUAFnxBX6z5GCkRUgnM08K+kn0uXAwQNyPO24PjvT/FlC5rlM+f3M73L699OXnKmXNgQE4+ixo7I4drGMGj1KhgwdIiM+HCGfff6ZAuNMe7kH6Jddv8jg9wbLK6++Iq+9/tol5aHDhioormCwGiZ/NFkH/9jxY5KRcUZ/l69YLh+O/FBSj6RqB5z5LtcArVu3ViJaR8hNN98k1WtUv2R8S/VbpEXLFip5/MA4l3VOvt/wvcyeM9vXUPPu1OlT8s3yb+ST6Z/8+cBYv04eePABqXZLNakVVuuicZjjuWatmgoGksgPDOTX1GlTZOOmjbYBT0tPk4ULv5TVa1bL8BHDNZ0z7+UaoB9/+lGe+HSuk3h7NvduflGt2zuWSAWATaGfR8o/OzTh27KNDDuRDiOcBQWeCBE3NWE39FNvxHZwAYLgNEIWcijtmDiCEPgNHAcHIHZSkpmZu+vmyIiHIbHWb27fTcuDvSuq4LZKmNb2GXDyzPWgQzJCNglnZrDVtrFiK02hyykw+iLyZvLeHbnePkdTE76RaHsZU4YRkCh3uEgkmVEcIA22gtwwr/SSnkZi3AAAAAElFTkSuQmCC">
     <h1>Public confidence in healthcare</h1>
-    <p>
-      A one-stock model of confidence building and erosion in the HSE
-      Mid-West. Compare decline, stability, recovery and a custom scenario.
-    </p>
-  </header>
+  </div>
+  <p class="muted">Compare decline, stability and recovery.</p>
 
+  <div class="card" style="margin-top:18px">
+    <strong>Survey informing the model</strong>
+    <h2 style="margin:10px 0">Public confidence in Ireland's Health Service Executive, Mid-West region: Findings from a 2024 regional survey</h2>
+    <p style="margin:6px 0">Sinead Madden · Hybrid Simulation Modelling Lab</p>
+    <a href="https://link.springer.com/article/10.1186/s12913-025-13663-z" target="_blank" rel="noopener noreferrer">Read the published survey ↗</a>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <strong>How to use the dashboard</strong>
+    <p style="margin:8px 0 0;line-height:1.6">
+      The graph shows the default scenarios when you open the dashboard.
+      Press <strong>Run model</strong> to animate the curves.
+      Edit the controls to explore different assumptions, then run again.
+      Press <strong>Reset</strong> to restore the defaults and clear the graph;
+      press <strong>Run model</strong> to draw the curves again.
+      Use <strong>Download results CSV</strong> to export the latest successful calculation.
+    </p>
+  </div>
+</header>
+
+<div class="layout">
   <section class="card">
     <h2>Model controls</h2>
 
-    <div class="controls">
-      <label>
-        Initial Public Confidence
-        <input id="initial" type="number"
-               value="0.1816" min="0" max="1" step="0.0001">
-      </label>
+    <label>Initial Public Confidence
+      <input id="initial" type="number" min="0" max="1" step="0.0001" value="0.1816">
+    </label>
+    <label>Confidence Building Rate / month
+      <input id="build" type="number" min="0" step="0.001" value="0.01">
+    </label>
+    <label>Embedded erosion coefficient / month
+      <input id="erosion" type="number" min="0" step="0.001" value="0.05">
+    </label>
+    <label>Custom Adverse System Perception
+      <input id="adverse" type="number" min="0" max="1" step="0.01" value="0.8">
+    </label>
+    <label>Final time · months
+      <input id="horizon" type="number" min="1" max="1000" step="1" value="100">
+    </label>
+    <label>Time step · months
+      <input id="step" type="number" min="0.001" max="10" step="0.01" value="1">
+    </label>
+    <label>Calculation method
+      <select id="method">
+        <option value="exact">Exact continuous-time solution</option>
+        <option value="euler">Euler integration</option>
+      </select>
+    </label>
 
-      <label>
-        Confidence Building Rate / month
-        <input id="building" type="number"
-               value="0.01" min="0" step="0.001">
-      </label>
-
-      <label>
-        Embedded erosion coefficient / month
-        <input id="coefficient" type="number"
-               value="0.05" min="0" step="0.001">
-      </label>
-
-      <label>
-        Custom Adverse System Perception
-        <input id="adverse" type="number"
-               value="0.8" min="0" max="1" step="0.01">
-      </label>
-
-      <label>
-        Final time · months
-        <input id="horizon" type="number"
-               value="100" min="1" max="1000" step="1">
-      </label>
-
-      <label>
-        Time step · months
-        <input id="step" type="number"
-               value="1" min="0.001" max="10" step="0.01">
-      </label>
-
-      <label>
-        Calculation method
-        <select id="method">
-          <option value="exact">Exact continuous-time solution</option>
-          <option value="euler">Euler integration</option>
-        </select>
-      </label>
+    <div class="actions">
+      <button id="run">▶ Run model</button>
+      <button id="reset" class="secondary">Reset</button>
     </div>
-
-    <button id="run" type="button">▶ Run model</button>
-    <button id="reset" class="secondary" type="button">Reset defaults</button>
-
     <p id="error" role="alert"></p>
     <p id="status" role="status" aria-live="polite"></p>
   </section>
 
-  <section class="card">
-    <h2>Public Confidence over time</h2>
+  <div>
+    <section class="card">
+      <h2>Scenario comparison</h2>
 
-    <svg id="chart" viewBox="0 0 800 380"
-         role="img" aria-label="Public Confidence trajectories over time">
-    </svg>
+      <div class="stats">
+        <div class="stat">
+          <span>Custom erosion rate / month</span>
+          <strong id="rate">—</strong>
+        </div>
+        <div class="stat">
+          <span>Custom net rate / month</span>
+          <strong id="net">—</strong>
+        </div>
+        <div class="stat">
+          <span>Custom final confidence</span>
+          <strong id="final">—</strong>
+        </div>
+      </div>
 
-    <div class="legend">
-      <span style="color:#d34438">Decline · A = 0.80</span>
-      <span style="color:#a33bb0">Stability · A = 0.20</span>
-      <span style="color:#176bd1">Recovery · A = 0.10</span>
-      <span style="color:#16836b">Custom · dashed</span>
-    </div>
+      <svg id="chart" class="chart" viewBox="0 0 760 390" role="img" aria-label="Confidence trajectories against time"></svg>
 
-    <div class="table-wrap">
+      <div class="legend">
+        <span><i class="dot" style="background:#d34438"></i>Decline · A = 0.80</span>
+        <span><i class="dot" style="background:#a33bb0"></i>Stability · A = 0.20</span>
+        <span><i class="dot" style="background:#176bd1"></i>Recovery · A = 0.10</span>
+      </div>
+
+      <p id="warning" class="note"></p>
+
       <table>
         <thead>
           <tr>
             <th>Scenario</th>
             <th>Adverse perception</th>
             <th>Erosion / month</th>
-            <th>Net coefficient / month</th>
             <th>Final confidence</th>
           </tr>
         </thead>
         <tbody id="results"></tbody>
       </table>
-    </div>
 
-    <p id="warning" class="note"></p>
+      <div class="actions">
+        <button id="csv" class="secondary">Download results CSV</button>
+      </div>
+    </section>
 
-    <button id="export" class="secondary" type="button">
-      Download results CSV
-    </button>
-  </section>
-
-  <section class="card">
-    <h2>Model equations</h2>
-
-    <pre>Confidence Building =
-    Confidence Building Rate × Public Confidence
-
-Confidence Erosion Rate =
-    Embedded erosion coefficient × Adverse System Perception
-
-Confidence Erosion =
-    Confidence Erosion Rate × Public Confidence
-
+    <section class="card below">
+      <h2>Equations used</h2>
+      <div class="equations">Confidence Building = Confidence Building Rate × Public Confidence
+Confidence Erosion Rate = Embedded erosion coefficient × Adverse System Perception
+Confidence Erosion = Confidence Erosion Rate × Public Confidence
 dC/dt = Confidence Building − Confidence Erosion
+Exact solution: C(t) = C₀ × exp[(building rate − erosion rate) × t]</div>
+      <p class="muted">
+        Only adverse perception differs between the three presets.
+        Initial confidence, rate coefficients, horizon and method are shared.
+        Preset names describe the original parameter settings;
+        editing shared rates can change their behaviour.
+      </p>
+    </section>
+  </div>
+</div>
 
-C(0) = Initial Public Confidence
-
-Exact solution:
-C(t) = C(0) × exp[(building rate − erosion rate) × t]</pre>
-
-    <p>
-      Only adverse perception differs between the preset scenarios.
-      Initial confidence, rate coefficients, horizon and calculation
-      method are shared. Changing shared rates may change the behaviour
-      of the named presets.
-    </p>
-
-    <p>
-      The time step controls output spacing in exact-solution mode and
-      integration steps in Euler mode. Euler results may differ slightly
-      from the exact solution.
-    </p>
-  </section>
-
-  <footer>
-    <p>
-      The default initial confidence of 0.1816 was reconstructed from
-      published survey response counts and remains subject to confirmation
-      against the original dataset. Rate coefficients and adverse-perception
-      values are illustrative assumptions. Outputs are not empirical
-      forecasts. This model has no upper confidence bound and does not
-      generate growth followed by saturation.
-    </p>
-
-    <p>
-      Survey reference:
-      <a href="https://doi.org/10.1186/s12913-025-13663-z"
-         target="_blank" rel="noopener noreferrer">
-        Madden (2025), BMC Health Services Research
-      </a>.
-    </p>
-  </footer>
+<footer>
+  The initial value 0.1816 was reconstructed from published survey response counts.
+  Rate coefficients and adverse-perception values are illustrative assumptions.
+  These outputs are not empirical forecasts.
+  This proportional-flow model has no upper bound and does not generate growth followed by saturation.
+  Reference: Sinead Madden (2025), Hybrid Simulation Modelling Lab.
+  <a href="https://link.springer.com/article/10.1186/s12913-025-13663-z" target="_blank" rel="noopener noreferrer">Published survey</a>.
+</footer>
 </main>
 
 <script>
 "use strict";
 
 const $ = id => document.getElementById(id);
-
 const defaults = {
   initial: 0.1816,
-  building: 0.01,
-  coefficient: 0.05,
+  build: 0.01,
+  erosion: 0.05,
   adverse: 0.8,
   horizon: 100,
   step: 1
 };
 
-let savedRun = null;
+let last = [];
+let lastSettings = null;
+let animationId = null;
+let animationToken = 0;
 
-function simulate(initial, building, coefficient, adverse,
-                  horizon, step, method) {
-  const netRate = building - coefficient * adverse;
-  const rows = [[0, initial]];
+function simulate(c0, b, g, a, T, dt, method) {
+  const rows = [[0, c0]];
+  const r = b - g * a;
+  let t = 0;
+  let c = c0;
 
-  let time = 0;
-  let confidence = initial;
+  while (t < T - 1e-10) {
+    const h = Math.min(dt, T - t);
+    c = method === "exact"
+      ? c0 * Math.exp(r * (t + h))
+      : c * (1 + r * h);
+    t += h;
 
-  while (time < horizon - 1e-10) {
-    const interval = Math.min(step, horizon - time);
-    time = Math.min(horizon, time + interval);
-
-    if (method === "exact") {
-      confidence = initial * Math.exp(netRate * time);
-    } else {
-      confidence *= 1 + netRate * interval;
+    if (!Number.isFinite(c)) {
+      throw new Error("Values overflow. Reduce the horizon or rates.");
     }
-
-    if (!Number.isFinite(confidence)) {
-      throw new Error(
-        "Simulation values overflow. Reduce the rates or horizon."
-      );
-    }
-
-    rows.push([time, confidence]);
+    rows.push([t, c]);
   }
 
   return rows;
 }
 
-function svgElement(tag, attributes, text) {
-  const element = document.createElementNS(
-    "http://www.w3.org/2000/svg", tag
-  );
-
+function svgNode(tag, attributes, text) {
+  const element = document.createElementNS("http://www.w3.org/2000/svg", tag);
   for (const [key, value] of Object.entries(attributes)) {
     element.setAttribute(key, value);
   }
-
-  if (text !== undefined) {
-    element.textContent = text;
-  }
-
+  if (text !== undefined) element.textContent = text;
   return element;
 }
 
-function drawChart(scenarios, horizon) {
+function plot(series, T, progress = 1) {
   const svg = $("chart");
   svg.replaceChildren();
 
-  const left = 66;
-  const right = 778;
-  const top = 24;
-  const bottom = 320;
+  const visible = series.filter(s => s.name !== "Custom");
+  const L = 64, R = 22, top = 18, bottom = 56;
+  const W = 760, H = 390;
+  const w = W - L - R;
+  const h = H - top - bottom;
 
-  let peak = 0.2;
-
-  for (const scenario of scenarios) {
-    for (const [, confidence] of scenario.rows) {
-      peak = Math.max(peak, confidence);
+  let maximum = 0.2;
+  for (const scenario of visible) {
+    for (const row of scenario.rows) {
+      maximum = Math.max(maximum, row[1]);
     }
   }
+  maximum = Math.ceil(maximum * 1.1 * 20) / 20;
 
-  const maximum = peak * 1.12;
-  const x = time => left + time / horizon * (right - left);
-  const y = confidence =>
-    bottom - confidence / maximum * (bottom - top);
+  const x = t => L + t / T * w;
+  const y = c => top + h - c / maximum * h;
 
   for (let i = 0; i <= 5; i++) {
-    const confidence = maximum * i / 5;
-    const time = horizon * i / 5;
+    const t = T * i / 5;
+    const c = maximum * i / 5;
 
     svg.append(
-      svgElement("line", {
-        x1: left, x2: right,
-        y1: y(confidence), y2: y(confidence),
-        stroke: "#e2e8f0"
+      svgNode("line", {
+        x1: L, y1: y(c), x2: W - R, y2: y(c), stroke: "#e2e8f0"
       }),
-      svgElement("text", {
-        x: left - 10,
-        y: y(confidence) + 4,
-        "text-anchor": "end",
-        fill: "#64748b",
-        "font-size": 12
-      }, maximum < 2
-        ? confidence.toFixed(2)
-        : confidence.toPrecision(3)),
-      svgElement("text", {
-        x: x(time),
-        y: bottom + 22,
-        "text-anchor": "middle",
-        fill: "#64748b",
-        "font-size": 12
-      }, Number(time.toFixed(2)))
+      svgNode("text", {
+        x: L - 9, y: y(c) + 4, "text-anchor": "end",
+        fill: "#617185", "font-size": 12
+      }, c.toFixed(maximum < 1 ? 2 : 1)),
+      svgNode("text", {
+        x: x(t), y: H - 31, "text-anchor": "middle",
+        fill: "#617185", "font-size": 12
+      }, Number(t.toFixed(2)))
     );
   }
 
   svg.append(
-    svgElement("line", {
-      x1: left, x2: left,
-      y1: top, y2: bottom,
-      stroke: "#7b899d"
+    svgNode("line", {
+      x1: L, y1: top, x2: L, y2: top + h, stroke: "#76849a"
     }),
-    svgElement("line", {
-      x1: left, x2: right,
-      y1: bottom, y2: bottom,
-      stroke: "#7b899d"
+    svgNode("line", {
+      x1: L, y1: top + h, x2: W - R, y2: top + h, stroke: "#76849a"
     })
   );
 
   if (maximum > 1) {
-    svg.append(svgElement("line", {
-      x1: left, x2: right,
-      y1: y(1), y2: y(1),
-      stroke: "#b78322",
-      "stroke-dasharray": "4 4"
+    svg.append(svgNode("line", {
+      x1: L, y1: y(1), x2: W - R, y2: y(1),
+      stroke: "#b87c1c", "stroke-dasharray": "4 4"
     }));
   }
 
-  for (const scenario of scenarios) {
-    const stride = Math.max(
-      1, Math.ceil(scenario.rows.length / 1500)
-    );
+  const cutoff = T * progress;
 
-    const points = scenario.rows
-      .filter((row, index) =>
-        index % stride === 0 ||
-        index === scenario.rows.length - 1
-      )
-      .map(([time, confidence]) =>
-        `${x(time)},${y(confidence)}`
-      )
-      .join(" ");
+  for (const scenario of visible) {
+    const stride = Math.max(1, Math.ceil(scenario.rows.length / 1500));
+    const points = [];
 
-    svg.append(svgElement("polyline", {
-      points,
+    for (let i = 0; i < scenario.rows.length; i++) {
+      const row = scenario.rows[i];
+      if (row[0] > cutoff) break;
+      if (i % stride === 0 || i === scenario.rows.length - 1) {
+        points.push(x(row[0]) + "," + y(row[1]));
+      }
+    }
+
+    svg.append(svgNode("polyline", {
+      points: points.join(" "),
       fill: "none",
       stroke: scenario.color,
-      "stroke-width": 2.5,
-      "stroke-dasharray":
-        scenario.name === "Custom" ? "7 5" : "none"
+      "stroke-width": 2.6
     }));
   }
 
   svg.append(
-    svgElement("text", {
-      x: (left + right) / 2,
-      y: 370,
-      "text-anchor": "middle",
-      fill: "#42546c",
-      "font-size": 13
+    svgNode("text", {
+      x: L + w / 2, y: H - 5, "text-anchor": "middle",
+      fill: "#44556c", "font-size": 13
     }, "Time (months)"),
-    svgElement("text", {
-      x: 17,
-      y: 175,
-      transform: "rotate(-90 17 175)",
-      "text-anchor": "middle",
-      fill: "#42546c",
-      "font-size": 13
+    svgNode("text", {
+      x: 17, y: top + h / 2,
+      transform: `rotate(-90 17 ${top + h / 2})`,
+      "text-anchor": "middle", fill: "#44556c", "font-size": 13
     }, "Public Confidence (dimensionless)")
   );
 }
 
-function readSettings() {
-  const settings = {};
-
-  for (const key of Object.keys(defaults)) {
-    const value = $(key).value.trim();
-
-    if (value === "") {
-      throw new Error("Complete all model controls.");
-    }
-
-    settings[key] = Number(value);
-
-    if (!Number.isFinite(settings[key])) {
-      throw new Error("Enter finite numeric values.");
-    }
-  }
-
-  if (
-    settings.initial < 0 || settings.initial > 1 ||
-    settings.adverse < 0 || settings.adverse > 1
-  ) {
-    throw new Error(
-      "Initial confidence and adverse perception must be between 0 and 1."
-    );
-  }
-
-  if (settings.building < 0 || settings.coefficient < 0) {
-    throw new Error("Rate coefficients must be nonnegative.");
-  }
-
-  if (settings.horizon < 1 || settings.horizon > 1000) {
-    throw new Error("Use a horizon between 1 and 1000 months.");
-  }
-
-  if (
-    settings.step <= 0 ||
-    settings.horizon / settings.step > 50000
-  ) {
-    throw new Error(
-      "Use a positive time step and no more than 50,000 steps."
-    );
-  }
-
-  settings.method = $("method").value;
-  return settings;
+function stopAnimation() {
+  animationToken++;
+  if (animationId !== null) cancelAnimationFrame(animationId);
+  animationId = null;
+  $("run").textContent = "▶ Run model";
 }
 
-function runModel() {
+function animate(series, T, method) {
+  const token = animationToken;
+  const start = performance.now();
+  const duration = 4000;
+
+  $("run").textContent = "Restart animation";
+  plot(series, T, 0);
+
+  function frame(now) {
+    if (token !== animationToken) return;
+
+    const progress = Math.min(1, (now - start) / duration);
+    plot(series, T, progress);
+
+    $("status").textContent = progress < 1
+      ? `Running · Month ${(T * progress).toFixed(1)} of ${T}`
+      : `Completed · ${method === "exact" ? "Exact solution" : "Euler integration"} · ${T} months`;
+
+    if (progress < 1) {
+      animationId = requestAnimationFrame(frame);
+    } else {
+      animationId = null;
+      $("run").textContent = "▶ Run model";
+    }
+  }
+
+  animationId = requestAnimationFrame(frame);
+}
+
+function run(animateRun = true) {
   try {
     $("error").textContent = "";
+    const p = {};
 
-    const settings = readSettings();
+    for (const key of Object.keys(defaults)) {
+      if ($(key).value.trim() === "") {
+        throw new Error("Complete all model controls.");
+      }
+      p[key] = Number($(key).value);
+      if (!Number.isFinite(p[key])) {
+        throw new Error("Enter finite numeric values.");
+      }
+    }
 
+    if (p.initial < 0 || p.initial > 1 || p.adverse < 0 || p.adverse > 1) {
+      throw new Error("Initial confidence and adverse perception must be between 0 and 1.");
+    }
+
+    if (
+      p.build < 0 || p.erosion < 0 ||
+      p.horizon < 1 || p.horizon > 1000 ||
+      p.step <= 0 || p.horizon / p.step > 50000
+    ) {
+      throw new Error("Use nonnegative rates, horizon 1–1000, and no more than 50,000 steps.");
+    }
+
+    const method = $("method").value;
     const definitions = [
       ["Decline", 0.8, "#d34438"],
       ["Stability", 0.2, "#a33bb0"],
       ["Recovery", 0.1, "#176bd1"],
-      ["Custom", settings.adverse, "#16836b"]
+      ["Custom", p.adverse, "#16836b"]
     ];
 
-    if (settings.method === "euler") {
-      const interval = Math.min(settings.step, settings.horizon);
-
-      for (const [, adverse] of definitions) {
-        const netRate =
-          settings.building - settings.coefficient * adverse;
-
-        if (1 + netRate * interval < 0) {
-          throw new Error(
-            "The Euler step would produce negative confidence. " +
-            "Reduce the time step or select the exact solution."
-          );
-        }
-      }
+    if (
+      method === "euler" &&
+      definitions.some(s =>
+        1 + (p.build - p.erosion * s[1]) * Math.min(p.step, p.horizon) < 0
+      )
+    ) {
+      throw new Error("Euler step is too large and would create negative confidence. Reduce the time step.");
     }
 
-    const scenarios = definitions.map(([name, adverse, color]) => ({
+    const next = definitions.map(([name, a, color]) => ({
       name,
-      adverse,
+      a,
       color,
-      erosionRate: settings.coefficient * adverse,
-      netRate:
-        settings.building - settings.coefficient * adverse,
-      rows: simulate(
-        settings.initial,
-        settings.building,
-        settings.coefficient,
-        adverse,
-        settings.horizon,
-        settings.step,
-        settings.method
-      )
+      rows: simulate(p.initial, p.build, p.erosion, a, p.horizon, p.step, method)
     }));
 
-    drawChart(scenarios, settings.horizon);
+    stopAnimation();
+    last = next;
+    lastSettings = { ...p, method };
+
+    const custom = last[3];
+    $("rate").textContent = (p.erosion * p.adverse).toFixed(4);
+    $("net").textContent = (p.build - p.erosion * p.adverse).toFixed(4);
+    $("final").textContent = custom.rows.at(-1)[1].toFixed(4);
+
     $("results").replaceChildren();
-
-    for (const scenario of scenarios) {
-      const row = document.createElement("tr");
-
+    for (const scenario of last) {
+      const tr = document.createElement("tr");
       const values = [
         scenario.name,
-        scenario.adverse.toFixed(2),
-        scenario.erosionRate.toFixed(4),
-        scenario.netRate.toFixed(4),
+        scenario.a.toFixed(2),
+        (p.erosion * scenario.a).toFixed(4),
         scenario.rows.at(-1)[1].toFixed(4)
       ];
 
       for (const value of values) {
-        const cell = document.createElement("td");
-        cell.textContent = value;
-        row.append(cell);
+        const td = document.createElement("td");
+        td.textContent = value;
+        tr.append(td);
       }
-
-      $("results").append(row);
+      $("results").append(tr);
     }
 
-    const exceedsScale = scenarios.some(
-      scenario => scenario.rows.at(-1)[1] > 1
-    );
+    const exceeds = last.some(s => s.rows.at(-1)[1] > 1);
+    $("warning").textContent = exceeds
+      ? "One or more results exceed 1. This model has no upper bound; values above 1 are outside the original normalised confidence scale."
+      : "Illustrative scenarios: the flat preset reflects exact rate balance at the default settings. Recovery shows increasing confidence. The graph displays the three preset scenarios; custom results appear in the summary and table.";
 
-    $("warning").textContent = exceedsScale
-      ? "At least one trajectory exceeds 1. These values lie outside " +
-        "the original normalised confidence scale because the model " +
-        "has no upper bound."
-      : "At default rates, stability represents exact balance. " +
-        "Recovery is exponential growth rather than a plateau. " +
-        "Changing shared coefficients may change preset behaviour. " +
-        "The custom curve overlaps decline when its input is 0.80.";
-
-    $("status").textContent =
-      "Run complete · " +
-      (settings.method === "exact"
-        ? "Exact continuous-time solution"
-        : "Euler integration") +
-      " · " + settings.horizon + " months";
-
-    savedRun = { settings, scenarios };
-
+    if (animateRun) {
+      animate(next, p.horizon, method);
+    } else {
+      plot(next, p.horizon);
+      $("status").textContent =
+        `Default scenarios · ${p.horizon} months · ${method === "exact" ? "Exact solution" : "Euler integration"}`;
+    }
   } catch (error) {
     $("error").textContent = error.message;
-    $("status").textContent =
-      "Run not completed; previous results retained.";
+    $("status").textContent = "Run not completed; previous results retained.";
   }
 }
 
-function resetModel() {
-  for (const [key, value] of Object.entries(defaults)) {
-    $(key).value = value;
-  }
-
-  $("method").value = "exact";
-  runModel();
+function clearDashboard() {
+  stopAnimation();
+  last = [];
+  lastSettings = null;
+  $("chart").replaceChildren();
+  $("rate").textContent = "—";
+  $("net").textContent = "—";
+  $("final").textContent = "—";
+  $("results").replaceChildren();
+  $("warning").textContent = "Press Run model to animate the scenario curves.";
+  $("error").textContent = "";
+  $("status").textContent = "Ready · graph cleared";
 }
 
-function exportCSV() {
-  if (!savedRun) {
-    $("error").textContent = "Run the model before exporting.";
-    return;
-  }
-
-  const { settings, scenarios } = savedRun;
-
-  const lines = [
-    [
-      "method",
-      "initial_confidence",
-      "building_rate",
-      "embedded_erosion_coefficient",
-      "time_step",
-      "scenario",
-      "adverse_system_perception",
-      "erosion_rate",
-      "net_coefficient",
-      "month",
-      "public_confidence"
-    ].join(",")
-  ];
-
-  for (const scenario of scenarios) {
-    for (const [time, confidence] of scenario.rows) {
-      lines.push([
-        settings.method,
-        settings.initial,
-        settings.building,
-        settings.coefficient,
-        settings.step,
-        scenario.name,
-        scenario.adverse,
-        scenario.erosionRate,
-        scenario.netRate,
-        time,
-        confidence
-      ].join(","));
-    }
-  }
-
-  const blob = new Blob(
-    [lines.join("\n")],
-    { type: "text/csv;charset=utf-8" }
-  );
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "public_confidence_scenarios.csv";
-
-  document.body.append(link);
-  link.click();
-  link.remove();
-
+function save(text, type, name) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = name;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-$("run").addEventListener("click", runModel);
-$("reset").addEventListener("click", resetModel);
-$("export").addEventListener("click", exportCSV);
+$("run").onclick = () => run(true);
 
-runModel();
+$("reset").onclick = () => {
+  for (const key of Object.keys(defaults)) {
+    $(key).value = defaults[key];
+  }
+  $("method").value = "exact";
+  clearDashboard();
+};
+
+$("csv").onclick = () => {
+  if (!last.length) return;
+
+  const p = lastSettings;
+  const lines = [
+    "method,initial_confidence,building_rate,embedded_erosion_coefficient,time_step,month,decline,stability,recovery,custom,custom_adverse_perception"
+  ];
+
+  for (let i = 0; i < last[0].rows.length; i++) {
+    lines.push([
+      p.method,
+      p.initial,
+      p.build,
+      p.erosion,
+      p.step,
+      last[0].rows[i][0],
+      ...last.map(s => s.rows[i][1]),
+      p.adverse
+    ].join(","));
+  }
+
+  save(lines.join("\n"), "text/csv;charset=utf-8", "confidence_scenarios.csv");
+};
+
+run(false);
 </script>
 </body>
 </html>
