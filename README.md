@@ -1,6 +1,6 @@
 # Public Confidence in Healthcare Dashboard
 
-An interactive dashboard from Sinead Madden’s Hybrid Simulation Modelling Lab exploring public confidence through a simple one-stock System Dynamics model.
+An interactive dashboard from the Hybrid Simulation Modelling Lab (HSML) exploring public confidence through a simple one-stock System Dynamics model.
 
 ## Survey informing the model
 
@@ -9,17 +9,9 @@ An interactive dashboard from Sinead Madden’s Hybrid Simulation Modelling Lab 
 **Author:** Sinead Madden  
 **Published survey:** https://link.springer.com/article/10.1186/s12913-025-13663-z
 
-## Getting started
-
-1. Save the dashboard HTML as `index.html`.
-2. Open `index.html` in a modern web browser.
-3. The three default scenario curves appear automatically.
-
-The dashboard runs entirely in your browser. No installation, external JavaScript libraries or server is required.
-
 ## Using the dashboard
 
-- **Run model:** animates the three scenario curves over approximately four seconds.
+- **Run model:** animates the three scenario curves.
 - **Reset:** restores the default controls and clears the graph and results.
 - **Model controls:** change the initial confidence, building rate, erosion coefficient, custom adverse perception, simulation duration or time step.
 - **Calculation method:** select the exact continuous-time solution or Euler integration.
